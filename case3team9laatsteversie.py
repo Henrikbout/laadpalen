@@ -32,94 +32,94 @@ from streamlit_folium import st_folium
 # In[4]:
 
 
-#inladen en cleanen data elektrische auto's
-df = pd.read_csv("Elektrische_Auto_s_2022.csv")
+# #inladen en cleanen data elektrische auto's
+# df = pd.read_csv("Elektrische_Auto_s_2022.csv")
 
-def float_to_datetime(float_date):
-    if not math.isnan(float_date):  # Controleer op NaN-waarden
-        date_str = str(int(float_date))
-        return datetime.strptime(date_str, '%Y%m%d')
-    else:
-        return None  # Als het een NaN-waarde is, retourneer None
+# def float_to_datetime(float_date):
+#     if not math.isnan(float_date):  # Controleer op NaN-waarden
+#         date_str = str(int(float_date))
+#         return datetime.strptime(date_str, '%Y%m%d')
+#     else:
+#         return None  # Als het een NaN-waarde is, retourneer None
 
-# Gebruik de 'apply' functie om de hele kolom om te zetten
-df['Datum tenaamstelling'] = df['Datum tenaamstelling'].apply(float_to_datetime)
+# # Gebruik de 'apply' functie om de hele kolom om te zetten
+# df['Datum tenaamstelling'] = df['Datum tenaamstelling'].apply(float_to_datetime)
 
-selected_columns = ['Kenteken', 'Merk', 'Catalogusprijs','Inrichting','Massa rijklaar', 'Datum tenaamstelling']
-selected_df = df[selected_columns] 
-cleaned_df = selected_df.dropna()
-
-
-
-duplicaten_mapping = {
-    'TESLA MOTORS': 'TESLA',
-    'VW': 'VOLKSWAGEN',
-    'POSSL': 'POESSL',
-    'M.A.N.': 'MAN',
-    'BMW I': 'BMW'
-}
-cleaned_df.loc[:, 'Merk'] = cleaned_df['Merk'].replace(duplicaten_mapping)
-cleaned_df['Catalogusprijs'] = cleaned_df['Catalogusprijs'].astype(int)
+# selected_columns = ['Kenteken', 'Merk', 'Catalogusprijs','Inrichting','Massa rijklaar', 'Datum tenaamstelling']
+# selected_df = df[selected_columns] 
+# cleaned_df = selected_df.dropna()
 
 
 
-
-# In[5]:
-
-
-# Lijst met alle merken
-alle_merken = cleaned_df.Merk.unique()
-
-# Aggregeer de gegevens om het aantal auto's per merk per datum te krijgen
-agg_df = df.groupby(['Datum tenaamstelling', 'Merk']).size().reset_index(name='aantal_auto_s')
-
-# Voeg cumulatieve som toe aan de dataset
-agg_df['cumulatief'] = agg_df.groupby('Merk')['aantal_auto_s'].cumsum()
-
-# Maak een lijndiagram met Plotly en stel de kleuren in
-fig = px.line(agg_df, x='Datum tenaamstelling', y='cumulatief', color='Merk',
-              color_discrete_sequence=px.colors.qualitative.Set3)
-
-# Voeg een checkbox toe om merken te selecteren
-updatemenu = [{'label': merk, 'method': 'relayout', 'args': [{'showlegend': [True if col == merk else False for col in agg_df['Merk']]}]} for merk in alle_merken]
-
-fig.update_layout(
-    updatemenus=[
-        dict(
-            buttons=updatemenu,
-            direction="down",
-            showactive=True,
-        ),
-    ]
-)
-
-# Toon het diagram
-# fig.show()
-
-st.title('Cumulatieve verkoop per merk elektrische auto in één jaar')
-#Streamlit
-st.plotly_chart(fig)
+# duplicaten_mapping = {
+#     'TESLA MOTORS': 'TESLA',
+#     'VW': 'VOLKSWAGEN',
+#     'POSSL': 'POESSL',
+#     'M.A.N.': 'MAN',
+#     'BMW I': 'BMW'
+# }
+# cleaned_df.loc[:, 'Merk'] = cleaned_df['Merk'].replace(duplicaten_mapping)
+# cleaned_df['Catalogusprijs'] = cleaned_df['Catalogusprijs'].astype(int)
 
 
-# In[102]:
 
 
-# Groepeer de gegevens op automerk en bereken het gemiddelde van de prijzen
-mean_price = cleaned_df.groupby('Merk')['Catalogusprijs'].mean().reset_index()
+# # In[5]:
 
-st.title('Gemiddelde catalogusprijs elektrische auto per merk (2022)')
 
-# Maak een barplot met Matplotlib
-plt.figure(figsize=(10, 6))
-plt.bar(mean_price['Merk'], mean_price['Catalogusprijs'])
-plt.xlabel('Automerk')
-plt.ylabel('Gemiddelde Prijs')
-plt.title('Gemiddelde Prijs per Automerk')
-plt.xticks(rotation=90)
+# # Lijst met alle merken
+# alle_merken = cleaned_df.Merk.unique()
 
-# plt.show()
-#voor streamlit
-st.pyplot(plt)
+# # Aggregeer de gegevens om het aantal auto's per merk per datum te krijgen
+# agg_df = df.groupby(['Datum tenaamstelling', 'Merk']).size().reset_index(name='aantal_auto_s')
+
+# # Voeg cumulatieve som toe aan de dataset
+# agg_df['cumulatief'] = agg_df.groupby('Merk')['aantal_auto_s'].cumsum()
+
+# # Maak een lijndiagram met Plotly en stel de kleuren in
+# fig = px.line(agg_df, x='Datum tenaamstelling', y='cumulatief', color='Merk',
+#               color_discrete_sequence=px.colors.qualitative.Set3)
+
+# # Voeg een checkbox toe om merken te selecteren
+# updatemenu = [{'label': merk, 'method': 'relayout', 'args': [{'showlegend': [True if col == merk else False for col in agg_df['Merk']]}]} for merk in alle_merken]
+
+# fig.update_layout(
+#     updatemenus=[
+#         dict(
+#             buttons=updatemenu,
+#             direction="down",
+#             showactive=True,
+#         ),
+#     ]
+# )
+
+# # Toon het diagram
+# # fig.show()
+
+# st.title('Cumulatieve verkoop per merk elektrische auto in één jaar')
+# #Streamlit
+# st.plotly_chart(fig)
+
+
+# # In[102]:
+
+
+# # Groepeer de gegevens op automerk en bereken het gemiddelde van de prijzen
+# mean_price = cleaned_df.groupby('Merk')['Catalogusprijs'].mean().reset_index()
+
+# st.title('Gemiddelde catalogusprijs elektrische auto per merk (2022)')
+
+# # Maak een barplot met Matplotlib
+# plt.figure(figsize=(10, 6))
+# plt.bar(mean_price['Merk'], mean_price['Catalogusprijs'])
+# plt.xlabel('Automerk')
+# plt.ylabel('Gemiddelde Prijs')
+# plt.title('Gemiddelde Prijs per Automerk')
+# plt.xticks(rotation=90)
+
+# # plt.show()
+# #voor streamlit
+# st.pyplot(plt)
 
 
 # In[6]:
